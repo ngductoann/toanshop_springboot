@@ -1,6 +1,6 @@
 package com.toan.toanshop.service.Impl;
 
-import com.toan.toanshop.Exception.ProductNotFoundException;
+import com.toan.toanshop.Exception.ResourceNotFoundException;
 import com.toan.toanshop.Request.AddProductRequest;
 import com.toan.toanshop.Request.UpdateProductRequest;
 import com.toan.toanshop.model.Category;
@@ -76,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
         */
         return productRepository
                 .findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
     }
 
     @Override
@@ -101,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
                 .ifPresentOrElse(
                         productRepository::delete,
                         () -> {
-                            throw new ProductNotFoundException("Product not found!");
+                            throw new ResourceNotFoundException("Product not found!");
                         });
         ;
     }
@@ -127,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
                 .findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request))
                 .map(productRepository::save)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request) {

@@ -3,6 +3,7 @@ package com.toan.toanshop.service.Impl;
 import com.toan.toanshop.Exception.ResourceNotFoundException;
 import com.toan.toanshop.dto.ImageDto;
 import com.toan.toanshop.model.Image;
+import com.toan.toanshop.model.Product;
 import com.toan.toanshop.repository.ImageRepository;
 import com.toan.toanshop.service.ImageService;
 import com.toan.toanshop.service.ProductService;
@@ -48,7 +49,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public Image saveImage(List<MultipartFile> files, Long productId) {
+    public List<ImageDto> saveImage(List<MultipartFile> files, Long productId) {
         Product product = productService.getProductById(productId);
 
         List<ImageDto> savedImageDto = new ArrayList<>();
@@ -79,6 +80,8 @@ public class ImageServiceImpl implements ImageService {
                 throw new RuntimeException(e.getMessage());
             }
         }
+
+        return savedImageDto;
     }
 
     @Override
