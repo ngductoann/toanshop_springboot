@@ -1,16 +1,19 @@
 package com.toan.toanshop.controller;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
+
 import com.toan.toanshop.Exception.ResourceNotFoundException;
 import com.toan.toanshop.dto.ImageDto;
 import com.toan.toanshop.model.Image;
 import com.toan.toanshop.response.ApiResponse;
+import com.toan.toanshop.response.ImageResponse;
 import com.toan.toanshop.service.ImageService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,27 +43,37 @@ public class ImageController {
     public ResponseEntity<ApiResponse> saveImages(
             @RequestParam List<MultipartFile> files, Long productId) {
         try {
-            List<ImageDto> imageDtos = imageService.saveImage(files, productId);
-            return ResponseEntity.ok(new ApiResponse("Upload success!", imageDtos));
+            List<ImageDto> imageDtos = imageService.uploadImage(files, productId);
+            return ResponseEntity.ok(new ApiResponse("Success", imageDtos));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Upload failed!", e.getMessage()));
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexpected error", e.getMessage()));
         }
     }
 
     @GetMapping("/image/download/{imageId}")
-    public ResponseEntity<Resource> downloadImage(@PathVariable Long imageId) throws SQLException {
-        Image image = imageService.getImageById(imageId);
+    public ResponseEntity<ApiResponse> downloadImage(@PathVariable Long imageId) {
+        try {
+            Image image = imageService.getImageById(imageId);
 
-        ByteArrayResource resource =
-                new ByteArrayResource(
-                        image.getImage().getBytes(1, (int) image.getImage().length()));
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(image.getFileType()))
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + image.getFileName() + "\"")
-                .body(resource);
+            ByteArrayResource resource =
+                    new ByteArrayResource(
+                            image.getImage().getBytes(1, (int) image.getImage().length()));
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(
+                            new ApiResponse(
+                                    "Success",
+                                    new ImageResponse(
+                                            resource, image.getFileName(), image.getFileType())));
+        } catch (SQLException e) {
+            return ResponseEntity.status(SERVICE_UNAVAILABLE)
+                    .body(new ApiResponse("Database error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexpected error", e.getMessage()));
+        }
     }
 
     @PutMapping("/image/{imageId}/update")
@@ -68,13 +81,15 @@ public class ImageController {
             @PathVariable long imageId, @RequestParam("file") MultipartFile file) {
         try {
             imageService.updateImage(file, imageId);
-            return ResponseEntity.ok().body(new ApiResponse("Update success!", null));
+            return ResponseEntity.ok().body(new ApiResponse("Success", null));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse("Image not found!", null));
+            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("Not found", null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(SERVICE_UNAVAILABLE)
+                    .body(new ApiResponse("Database error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Update failed!" + e.getMessage(), null));
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexpected error", e.getMessage()));
         }
     }
 
@@ -82,14 +97,13 @@ public class ImageController {
     public ResponseEntity<ApiResponse> deteleImage(@PathVariable Long imageId) {
         try {
             imageService.deleteImageById(imageId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(new ApiResponse("Delete success", null));
+            return ResponseEntity.status(NO_CONTENT).body(new ApiResponse("Success", null));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse("Not found", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Update failed!" + e.getMessage(), null));
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexpected error", e.getMessage()));
         }
     }
 }

@@ -1,12 +1,16 @@
 package com.toan.toanshop.controller;
 
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+
 import com.toan.toanshop.Exception.ResourceNotFoundException;
 import com.toan.toanshop.model.Category;
 import com.toan.toanshop.response.ApiResponse;
 import com.toan.toanshop.service.CategoryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,12 +35,10 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> getAllCategories() {
         try {
             List<Category> categories = categoryService.getAllCategories();
-            return ResponseEntity.ok().body(new ApiResponse("Found!", categories));
+            return ResponseEntity.ok().body(new ApiResponse("Success", categories));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(
-                            new ApiResponse(
-                                    "Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexcepted error", e.getMessage()));
         }
     }
 
@@ -44,20 +46,26 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> addCategory(@RequestBody Category category) {
         try {
             Category addedCategory = categoryService.addCategory(category);
-            return ResponseEntity.ok(new ApiResponse("Add category success", addedCategory));
+            return ResponseEntity.ok(new ApiResponse("Success", addedCategory));
         } catch (AlreadyBoundException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(CONFLICT)
+                    .body(new ApiResponse("Already resource", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexcepted error", e.getMessage()));
         }
     }
 
     @GetMapping("/category/{id}")
     public ResponseEntity<ApiResponse> getCategoryById(@PathVariable long id) {
         try {
-            return ResponseEntity.ok(new ApiResponse("Found", categoryService.getCategoryById(id)));
+            return ResponseEntity.ok(new ApiResponse("Success", categoryService.getCategoryById(id)));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse("Not found", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexcepted error", e.getMessage()));
         }
     }
 
@@ -65,24 +73,27 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> getCategoryByName(@PathVariable String name) {
         try {
             return ResponseEntity.ok(
-                    new ApiResponse("Found", categoryService.getCategoryByName(name)));
+                    new ApiResponse("Success", categoryService.getCategoryByName(name)));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse("Not found", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexcepted error", e.getMessage()));
         }
     }
 
     public ResponseEntity<ApiResponse> deleteCategory(@PathVariable long id) {
         try {
             categoryService.deleteCategoryById(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(new ApiResponse("Delete Category success", null));
+            return ResponseEntity.status(NO_CONTENT)
+                    .body(new ApiResponse("Success", null));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse("Not found", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Delete failed! " + e.getMessage(), null));
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexcepted error" + e.getMessage(), null));
         }
     }
 
@@ -90,13 +101,13 @@ public class CategoryController {
             @PathVariable Long id, @RequestBody Category category) {
         try {
             Category updatedCategory = categoryService.updateCategory(category, id);
-            return ResponseEntity.ok(new ApiResponse("Update success!", updatedCategory));
+            return ResponseEntity.ok(new ApiResponse("Success", updatedCategory));
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(new ApiResponse("Not found", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Update category failed! " + e.getMessage(), null));
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Unexcepted error", e.getMessage()));
         }
     }
 }

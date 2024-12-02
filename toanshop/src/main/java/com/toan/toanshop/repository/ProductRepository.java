@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<Product> findById();
+    Optional<Product> findById(Long id);
 
     List<Product> findByCategoryName(String category);
 
@@ -16,7 +16,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByCategoryNameAndBrand(String category, String brand);
 
-    List<Product> findByProductName(String name);
+    List<Product> findByName(String name);
 
     List<Product> findByCategoryNameAndName(String category, String name);
 

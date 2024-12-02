@@ -1,4 +1,4 @@
-package com.toan.toanshop.Request;
+package com.toan.toanshop.request;
 
 import com.toan.toanshop.model.Category;
 
@@ -7,12 +7,12 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class AddProductRequest {
+public class UpdateProductRequest {
 
     private String name;
     private String description;
-    private String brand;
     private BigDecimal price;
     private int inventory;
     private Category category;
+    private String brand;
 }

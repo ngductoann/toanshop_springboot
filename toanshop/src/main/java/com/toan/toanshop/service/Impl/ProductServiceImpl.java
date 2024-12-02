@@ -1,8 +1,8 @@
 package com.toan.toanshop.service.Impl;
 
 import com.toan.toanshop.Exception.ResourceNotFoundException;
-import com.toan.toanshop.Request.AddProductRequest;
-import com.toan.toanshop.Request.UpdateProductRequest;
+import com.toan.toanshop.request.AddProductRequest;
+import com.toan.toanshop.request.UpdateProductRequest;
 import com.toan.toanshop.model.Category;
 import com.toan.toanshop.model.Product;
 import com.toan.toanshop.repository.CategoryRepository;
@@ -164,7 +164,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getProductsByName(String name) {
-        return productRepository.findByProductName(name);
+        return productRepository.findByName(name);
     }
 
     @Override

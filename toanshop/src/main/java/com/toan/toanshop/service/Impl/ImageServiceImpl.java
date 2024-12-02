@@ -49,7 +49,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public List<ImageDto> saveImage(List<MultipartFile> files, Long productId) {
+    public List<ImageDto> uploadImage(List<MultipartFile> files, Long productId) {
         Product product = productService.getProductById(productId);
 
         List<ImageDto> savedImageDto = new ArrayList<>();

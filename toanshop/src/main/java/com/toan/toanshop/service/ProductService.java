@@ -1,7 +1,7 @@
 package com.toan.toanshop.service;
 
-import com.toan.toanshop.Request.AddProductRequest;
-import com.toan.toanshop.Request.UpdateProductRequest;
+import com.toan.toanshop.request.AddProductRequest;
+import com.toan.toanshop.request.UpdateProductRequest;
 import com.toan.toanshop.model.Product;
 
 import java.util.List;
